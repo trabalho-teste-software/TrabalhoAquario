@@ -148,6 +148,7 @@ public class Aquario {
             
             // Se atingiu o limite MA, morre!
             if (p.movimentosSemComer >= MA) {
+                System.out.println("✝ Peixe A morreu de fome (preso) na posição (" + p.x + "," + p.y + ")");
                 matriz[p.x][p.y] = 0; // Remove corpo do aquário
                 peixes.remove(p);     // Remove da lista
                 return true;          // Avisa que morreu
@@ -238,6 +239,8 @@ public class Aquario {
             int novoY = destino[1];
             
             // 1. Remove o Peixe A que estava lá
+            System.out.println("⚔ Peixe B (" + p.x + "," + p.y + ") comeu Peixe A em (" + novoX + "," + novoY + ")");
+
             removerPeixeNaPosicao(novoX, novoY);
             
             // 2. Move o Peixe B
@@ -267,6 +270,8 @@ public class Aquario {
 
         // --- 5. Verificação de MORTE (Fome) ---
         if (p.movimentosSemComer >= MB) {
+            System.out.println("✝ Peixe B morreu de fome na posição (" + p.x + "," + p.y + ")");
+            
             matriz[p.x][p.y] = 0;
             peixes.remove(p);
             return true; // Morreu
@@ -274,10 +279,10 @@ public class Aquario {
 
         // --- 6. Verificação de REPRODUÇÃO ---
         // Regra: Ter comido RB peixes E ter espaço livre em volta (vizinhosVazios)
-        // Nota: Precisamos recalcular vizinhos vazios pois ele pode ter mudado de lugar
+
         if (comeu && p.movimentosParaReproduzir >= RB) {
             
-            // Procura vaga em volta da NOVA posição
+
             ArrayList<int[]> vagasParaFilho = new ArrayList<>();
             for (int[] dir : direcoes) {
                 int nx = p.x + dir[0];
