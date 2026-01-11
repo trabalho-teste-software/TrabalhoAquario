@@ -91,15 +91,12 @@ public class AquarioTest {
 
     @Test
     public void testCT21_MortePeixeAFome() {
-        // CT21: Peixe A morre de fome.
-        // Cenário: MA=1 (morre se não comer, mas A come plâncton... 
-        // A regra diz: "Se não se movimentarem durante MA vezes... morrem")
-        // Vamos forçar um cenário onde ele morreria.
-        Aquario jogo = new Aquario(1, 10, 10, 10, 1, 1, 3, 3);
+        // CT21: Peixe A morre de fome (por inatividade).
+        // O mapa estará CHEIO. O Peixe A não terá para onde ir (vizinhos ocupados).
+        Aquario jogo = new Aquario(1, 10, 10, 10, 1, 1, 1, 2);
         
         // Simular iterações suficientes para ele morrer
         jogo.executarIteracao();
-        // Nota: Precisaremos implementar a logica de morte na classe Aquario depois
         
         // Se morreu, deve sobrar 0
         assertEquals("Peixe A deveria ter morrido de fome", 0, jogo.getQuantidadePeixesA());
@@ -109,7 +106,7 @@ public class AquarioTest {
     public void testCT22_PeixeB_Come_PeixeA() {
         // CT22: Peixe B come Peixe A.
         // Cenário: Colocamos 1 A e 1 B em um aquário pequeno para forçar o encontro
-        Aquario jogo = new Aquario(10, 10, 10, 10, 1, 1, 2, 2);
+        Aquario jogo = new Aquario(10, 10, 10, 10, 1, 1, 1, 2);
         
         jogo.executarIteracao();
         
