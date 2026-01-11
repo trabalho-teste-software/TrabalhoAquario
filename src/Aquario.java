@@ -109,46 +109,214 @@ public class Aquario {
             Peixe p = peixes.get(i);
             
             if (!p.moveuNesteTurno) {
+            	
+            	boolean morreu = false;
+            	
                 if (p.tipo == 0) {
-                    moverPeixeA(p);
+                	
+                    morreu = moverPeixeA(p);
+                }else if (p.tipo == 1) {
+                    // AGORA O PEIXE B ENTRA EM AÇÃO!
+                    morreu = moverPeixeB(p);
                 }
-                // ( moverPeixeB  faltaAinda)
                 
-                p.moveuNesteTurno = true;
+                if (morreu) {
+                	i--;
+                } else {
+                	
+                	p.moveuNesteTurno = true;
+                }
             }
+            
         }
     }
 
-    private void moverPeixeA(Peixe p) {
- 
+    private boolean moverPeixeA(Peixe p) {
+      
         ArrayList<int[]> vizinhosLivres = new ArrayList<>();
         
+        // Verifica as 4 direções (Cima, Baixo, Esq, Dir) se estão dentro do mapa E vazias (0)
         if (p.x > 0 && matriz[p.x - 1][p.y] == 0) vizinhosLivres.add(new int[]{p.x - 1, p.y});
         if (p.x < M - 1 && matriz[p.x + 1][p.y] == 0) vizinhosLivres.add(new int[]{p.x + 1, p.y});
         if (p.y > 0 && matriz[p.x][p.y - 1] == 0) vizinhosLivres.add(new int[]{p.x, p.y - 1});
         if (p.y < N - 1 && matriz[p.x][p.y + 1] == 0) vizinhosLivres.add(new int[]{p.x, p.y + 1});
 
-        // Se tiver lugar para ir, sorteia e vai
-        if (!vizinhosLivres.isEmpty()) {
+        // --- 2. Decisão: Mover ou Ficar? ---
+        if (vizinhosLivres.isEmpty()) {
+            // REGRA MORTE: Se não se movimentar, conta como "fome"
+            p.movimentosSemComer++; // Usamos essa variável para contar turnos preso
+            
+            // Se atingiu o limite MA, morre!
+            if (p.movimentosSemComer >= MA) {
+                matriz[p.x][p.y] = 0; // Remove corpo do aquário
+                peixes.remove(p);     // Remove da lista
+                return true;          // Avisa que morreu
+            }
+            return false; // Está preso, mas vivo
+            
+        } else {
+            // Se tem vizinho livre, ele VAI se mexer. Reseta o contador de morte.
+            p.movimentosSemComer = 0; 
+            
+            // Sorteia para onde vai
             int[] destino = vizinhosLivres.get(random.nextInt(vizinhosLivres.size()));
+            int novoX = destino[0];
+            int novoY = destino[1];
+
+            // --- 3. REGRA REPRODUÇÃO  ---
+            // Verifica se já andou o suficiente (RA) para ter filho
+            if (p.movimentosParaReproduzir >= RA) {
+                // REPRODUZ!
+                // Pai: Fica na posição antiga (não muda p.x nem p.y)
+                // Filho: Nasce na posição nova (destino)
+                
+                // Cria o filho
+                Peixe filho = new Peixe(0, novoX, novoY);
+                filho.moveuNesteTurno = true; // Filho não age no turno que nasce
+                peixes.add(filho);
+                
+                // Atualiza Matriz com o filho
+                matriz[novoX][novoY] = 1; 
+                
+                // Reseta contador do pai
+                p.movimentosParaReproduzir = 0;
+                
+            } else {
+                // MOVIMENTO NORMAL (Sem filho)
+                // Atualiza Matriz: Sai da casa velha
+                matriz[p.x][p.y] = 0;
+                
+                // Peixe anda
+                p.x = novoX;
+                p.y = novoY;
+                
+                // Atualiza Matriz: Entra na casa nova
+                matriz[p.x][p.y] = 1;
+                
+                // Só aumenta a vontade de reproduzir se andar
+                p.movimentosParaReproduzir++; 
+            }
             
-            // Atualiza Matriz: Sai da posição antiga
-            matriz[p.x][p.y] = 0;
-            
-            // Atualiza Peixe: Muda coordenada
-            p.x = destino[0];
-            p.y = destino[1];
-            
-            // Atualiza Matriz: Entra na nova posição
-            matriz[p.x][p.y] = 1; 
+            return false; // Não morreu
         }
-        
-        // Atualiza status vital
-        p.movimentosSemComer++;
-        p.movimentosParaReproduzir++;
     }
 
 
+    
+    
+    
+    private boolean moverPeixeB(Peixe p) {
+        
+        ArrayList<int[]> vizinhosComida = new ArrayList<>();
+        ArrayList<int[]> vizinhosVazios = new ArrayList<>();
+        
+        // Vamos olhar em volta (Cima, Baixo, Esq, Dir)
+        // Definindo os offsets para não repetir código
+        int[][] direcoes = {{-1,0}, {1,0}, {0,-1}, {0,1}};
+        
+        for (int[] dir : direcoes) {
+            int nx = p.x + dir[0];
+            int ny = p.y + dir[1];
+            
+            // Verifica se está dentro do aquário
+            if (nx >= 0 && nx < M && ny >= 0 && ny < N) {
+                if (matriz[nx][ny] == 1) {
+                    vizinhosComida.add(new int[]{nx, ny}); // Achou Peixe A!
+                } else if (matriz[nx][ny] == 0) {
+                    vizinhosVazios.add(new int[]{nx, ny}); // Achou Vazio
+                }
+            }
+        }
+
+        boolean comeu = false;
+
+        // --- 2. Ação: COMER (Prioridade) ---
+        if (!vizinhosComida.isEmpty()) {
+            // Escolhe uma presa aleatória
+            int[] destino = vizinhosComida.get(random.nextInt(vizinhosComida.size()));
+            int novoX = destino[0];
+            int novoY = destino[1];
+            
+            // 1. Remove o Peixe A que estava lá
+            removerPeixeNaPosicao(novoX, novoY);
+            
+            // 2. Move o Peixe B
+            matriz[p.x][p.y] = 0; // Sai da antiga
+            p.x = novoX;
+            p.y = novoY;
+            matriz[p.x][p.y] = 2; // Ocupa a nova como B
+            
+            comeu = true;
+            p.movimentosSemComer = 0; // Encheu a barriga
+            p.movimentosParaReproduzir++; // Conta como "Peixe Comido" para reprodução
+        
+        } else if (!vizinhosVazios.isEmpty()) {
+            // --- 3. Ação: MOVER (Sem comer) ---
+            int[] destino = vizinhosVazios.get(random.nextInt(vizinhosVazios.size()));
+            
+            matriz[p.x][p.y] = 0;
+            p.x = destino[0];
+            p.y = destino[1];
+            matriz[p.x][p.y] = 2;
+            
+            p.movimentosSemComer++; // Aumenta a fome
+        } else {
+            // --- 4. Ação: FICAR PARADO ---
+            p.movimentosSemComer++; // Aumenta a fome mesmo parado
+        }
+
+        // --- 5. Verificação de MORTE (Fome) ---
+        if (p.movimentosSemComer >= MB) {
+            matriz[p.x][p.y] = 0;
+            peixes.remove(p);
+            return true; // Morreu
+        }
+
+        // --- 6. Verificação de REPRODUÇÃO ---
+        // Regra: Ter comido RB peixes E ter espaço livre em volta (vizinhosVazios)
+        // Nota: Precisamos recalcular vizinhos vazios pois ele pode ter mudado de lugar
+        if (comeu && p.movimentosParaReproduzir >= RB) {
+            
+            // Procura vaga em volta da NOVA posição
+            ArrayList<int[]> vagasParaFilho = new ArrayList<>();
+            for (int[] dir : direcoes) {
+                int nx = p.x + dir[0];
+                int ny = p.y + dir[1];
+                if (nx >= 0 && nx < M && ny >= 0 && ny < N && matriz[nx][ny] == 0) {
+                    vagasParaFilho.add(new int[]{nx, ny});
+                }
+            }
+
+            if (!vagasParaFilho.isEmpty()) {
+                // Nasce o peixe!
+                int[] localFilho = vagasParaFilho.get(random.nextInt(vagasParaFilho.size()));
+                Peixe filho = new Peixe(1, localFilho[0], localFilho[1]);
+                filho.moveuNesteTurno = true; // Recém nascido não age
+                peixes.add(filho);
+                matriz[localFilho[0]][localFilho[1]] = 2;
+                
+                p.movimentosParaReproduzir = 0; // Reseta contador
+            }
+        }
+
+        return false; // Não morreu
+    }
+    
+    
+    
+    
+    private void removerPeixeNaPosicao(int x, int y) {
+        for (int i = 0; i < peixes.size(); i++) {
+            Peixe alvo = peixes.get(i);
+            // Se achou um peixe na posição X,Y que não seja o próprio predador (só pra garantir)
+            if (alvo.x == x && alvo.y == y) {
+                peixes.remove(i);
+                return; // Encontrou e removeu, pode parar
+            }
+        }
+    }
+    
+    
     public int getQuantidadePeixesA() {
         int conta = 0;
         for (Peixe p : peixes) {
