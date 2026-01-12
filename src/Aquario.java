@@ -26,6 +26,18 @@ public class Aquario {
     public Aquario(int MA, int RA, int MB, int RB, int X, int Y, int M, int N) {
         
         
+    	if (X <= 0) {
+    		throw new IllegalArgumentException("Erro: X deve ser maior que 0.");
+    	}
+    	if (Y <= 0) {
+    		throw new IllegalArgumentException("Erro: Y deve ser maior que 0.");
+    	}
+    	if (M <= 0) {
+    		throw new IllegalArgumentException("Erro: M deve ser maior que 0.");
+    	}
+    	if (N <= 0) {
+    		throw new IllegalArgumentException("Erro: N deve ser maior que 0.");
+    	}
         if (MA <= 0) {
             throw new IllegalArgumentException("Erro: MA deve ser maior que 0.");
         }
@@ -38,17 +50,8 @@ public class Aquario {
         if (RB <= 0) {
             throw new IllegalArgumentException("Erro: RB deve ser maior que 0.");
         }
-        if (X <= 0) {
-            throw new IllegalArgumentException("Erro: X deve ser maior que 0.");
-        }
-        if (Y <= 0) {
-            throw new IllegalArgumentException("Erro: Y deve ser maior que 0.");
-        }
-        if (M <= 0) {
-            throw new IllegalArgumentException("Erro: M deve ser maior que 0.");
-        }
-        if (N <= 0) {
-            throw new IllegalArgumentException("Erro: N deve ser maior que 0.");
+        if (X+Y > M*N) {
+        	throw new IllegalArgumentException("Erro: O número de peixes deve ser menor ou igual ao número de casas do aquário.");
         }
 
       
@@ -83,7 +86,7 @@ public class Aquario {
 
     private void criarPeixeEmPosicaoAleatoria(int tipo) {
         int tentativas = 0;
-        while (tentativas < 100) {
+        while (tentativas < 5) {
             int rX = random.nextInt(M);
             int rY = random.nextInt(N);
             
@@ -108,14 +111,14 @@ public class Aquario {
         for (int i = 0; i < peixes.size(); i++) {
             Peixe p = peixes.get(i);
             
-            if (!p.moveuNesteTurno) {
+//            if (!p.moveuNesteTurno) {
             	
             	boolean morreu = false;
             	
                 if (p.tipo == 0) {
                 	
                     morreu = moverPeixeA(p);
-                }else if (p.tipo == 1) {
+                } else {
                     // AGORA O PEIXE B ENTRA EM AÇÃO!
                     morreu = moverPeixeB(p);
                 }
@@ -128,7 +131,7 @@ public class Aquario {
                 }
             }
             
-        }
+//        }
     }
 
     private boolean moverPeixeA(Peixe p) {
@@ -355,7 +358,7 @@ public class Aquario {
                     System.out.print(".  "); 
                 } else if (valor == 1) {
                     System.out.print("A  "); 
-                } else if (valor == 2) {
+                } else {
                     System.out.print("B  "); 
                 }
             }

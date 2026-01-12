@@ -1,32 +1,54 @@
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Principal {
 
     public static void main(String[] args) {
         Scanner teclado = new Scanner(System.in);
-        
-        System.out.println("=== BEM-VINDO AO JOGO DO AQUÁRIO ===");
-        
-        // 1. Configuração Inicial (Perguntas ao usuário)
-        System.out.println("Digite a altura do Aquário (M): ");
-        int m = teclado.nextInt();
-        
-        System.out.println("Digite a largura do Aquário (N): ");
-        int n = teclado.nextInt();
-        
-        System.out.println("Quantos Peixes A (Presas)?: ");
-        int x = teclado.nextInt();
-        
-        System.out.println("Quantos Peixes B (Predadores)?: ");
-        int y = teclado.nextInt();
-        
-        // SUAS CONFIGURAÇÕES PERSONALIZADAS
-        int ma = 5; // Fome A
-        int ra = 1; // Reprodução A
-        int mb = 5; // Fome B
-        int rb = 2; // Reprodução B
-        
         try {
+        
+	        System.out.println("===              BEM-VINDO AO JOGO DO AQUÁRIO                        ===");
+	        System.out.println("===                  Variáveis do jogo                               ===");
+	        System.out.println("=== X:  Quantidade inicial de peixes A                               ===");
+	        System.out.println("=== Y:  Quantidade inicial de peixes B                               ===");
+	        System.out.println("=== M:  Altura do aquário                                            ===");
+	        System.out.println("=== N:  Largura do aquário                                           ===");
+	        System.out.println("=== MA: Número de movimentos para peixes A morrer de fome            ===");
+	        System.out.println("=== RA: Número de movimentos para peixes A reproduzir                ===");
+	        System.out.println("=== MB: Número de movimentos para peixes B morrer de fome            ===");
+	        System.out.println("=== RR: Número de movimentos para peixes B reproduzir                ===");
+	        
+	        // 1. Configuração Inicial (Perguntas ao usuário)
+	        System.out.println("Insira o valor de M: ");
+	        int m = teclado.nextInt();
+	        
+	        System.out.println("Insira o valor de N: ");
+	        int n = teclado.nextInt();
+	        
+	        System.out.println("Insira o valor de X: ");
+	        int x = teclado.nextInt();
+	        
+	        System.out.println("Insira o valor de Y: ");
+	        int y = teclado.nextInt();
+	        
+	        System.out.println("Insira o valor de MA: ");
+	        int ma = teclado.nextInt();
+	        
+	        System.out.println("Insira o valor de RA: ");
+	        int ra = teclado.nextInt();
+	        
+	        System.out.println("Insira o valor de MB: ");
+	        int mb = teclado.nextInt();
+	        
+	        System.out.println("Insira o valor de RB: ");
+	        int rb = teclado.nextInt();
+	        
+//	        // SUAS CONFIGURAÇÕES PERSONALIZADAS
+//	        int ma = 5; // Fome A
+//	        int ra = 1; // Reprodução A
+//	        int mb = 5; // Fome B
+//	        int rb = 2; // Reprodução B
+   
             // Cria o jogo
             Aquario jogo = new Aquario(ma, ra, mb, rb, x, y, m, n);
             
@@ -61,8 +83,10 @@ public class Principal {
             }
             
         } catch (IllegalArgumentException e) {
-            System.out.println("Erro ao iniciar jogo: " + e.getMessage());
-        }
+        	System.out.println("Erro ao iniciar jogo: " + e.getMessage());
+	    } catch (InputMismatchException e) {
+	    	System.out.println("Erro ao iniciar jogo: O tipo do valor inserido é diferente do tipo esperado (inteiro).");
+	    }
         
         System.out.println("Execução Encerrada.");
         teclado.close();

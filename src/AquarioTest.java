@@ -13,52 +13,51 @@ public class AquarioTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testCT02_MA_Invalido() {
-        
-        //  MA=0 (Inválido), o resto válido.
-        new Aquario(0, 1, 1, 1, 1, 1, 1, 2);
-        
+        new Aquario(0, 1, 1, 1, 1, 1, 1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCT03_RA_Invalido() {
-        // RA=0 (Inválido), resto=1
         new Aquario(1, 0, 1, 1, 1, 1, 1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCT04_MB_Invalido() {
-        // MB=0 (Inválido)
         new Aquario(1, 1, 0, 1, 1, 1, 1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCT05_RB_Invalido() {
-        // RB=0 (Inválido)
         new Aquario(1, 1, 1, 0, 1, 1, 1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCT06_X_Invalido() {
-        // X=0 (Inválido - Sem peixes A)
         new Aquario(1, 1, 1, 1, 0, 1, 1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCT07_Y_Invalido() {
-        // Y=0 (Inválido - Sem peixes B)
         new Aquario(1, 1, 1, 1, 1, 0, 1, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCT08_M_Invalido() {
-        // M=0 (Inválido - Altura 0)
         new Aquario(1, 1, 1, 1, 1, 1, 0, 1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testCT09_N_Invalido() {
-        // N=0 (Inválido - Largura 0)
         new Aquario(1, 1, 1, 1, 1, 1, 1, 0);
+    }
+    
+    @Test
+    public void testCT18_Numero_Peixes_Maior_Que_Aquario() {
+    	Exception ex = assertThrows(IllegalArgumentException.class, () -> {
+    		new Aquario(1, 1, 1, 1, 1, 1, 1, 1);
+    	});
+    	String expectedMessage = "Erro: O número de peixes deve ser menor ou igual ao número de casas do aquário.";
+    	assertEquals(expectedMessage, ex.getMessage());
     }
 
     @Test
@@ -75,14 +74,14 @@ public class AquarioTest {
     public void testCT20_ReproducaoPeixeA() {
         // CT20: Peixe A reproduz.
         // Cenário: RA=1 (reproduz logo), MA=10 (não morre)
-    	Aquario jogo = new Aquario(10, 1, 10, 10, 1, 1, 20, 20);
+    	Aquario jogo = new Aquario(10, 1, 10, 10, 20, 1, 20, 20);
         
         
         
         // Executa o turno. O peixe deve se mover e criar um filho.
         jogo.executarIteracao();
  
-        assertEquals("Peixe A deveria ter reproduzido", 1, jogo.getQuantidadePeixesA());
+        assertEquals("Peixe A deveria ter reproduzido", 20, jogo.getQuantidadePeixesA());
     }
 
     @Test
@@ -169,9 +168,17 @@ public class AquarioTest {
 
         assertEquals(1, jogo.getQuantidadePeixesB());
     }
-
     
-    
-    
+    @Test
+    public void testExtra_Espaco_Para_PeixeA_Mover() {
+    	
+    	Aquario jogo = new Aquario(4, 20, 4, 20, 2, 2, 20, 20);
+    	
+    	jogo.setQuantidadePeixesA(0);
+    	
+    	jogo.executarIteracao();
+    	
+    	assertEquals(2, jogo.getQuantidadePeixesB());
+    }
     
 }
