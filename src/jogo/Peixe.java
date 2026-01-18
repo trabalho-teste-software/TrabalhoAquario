@@ -1,3 +1,4 @@
+package jogo;
 
 public class Peixe {
     int tipo; // 0 = Tipo A (Presa), 1 = Tipo B (Predador)

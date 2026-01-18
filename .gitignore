@@ -33,3 +33,7 @@ bin/
 .baduino/
 coverage.ser
 coverage.xml
+JaCoCo/
+historia_projeto/
+jacoco.exec
+Baduino/
