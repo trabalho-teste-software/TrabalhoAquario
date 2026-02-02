@@ -74,6 +74,15 @@ public class Aquario {
     }
     
     // Métodos 
+    
+    public ArrayList<Peixe> getPeixes() {
+        return this.peixes;
+    }
+
+    // ADIÇÃO PARA TESTABILIDADE: Getter para a matriz interna
+    public int[][] getMatriz() {
+        return this.matriz;
+    }
    
     private void posicionarPeixesIniciais() {
 
